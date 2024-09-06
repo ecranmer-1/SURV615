@@ -1,0 +1,95 @@
+---
+title: "HW1"
+author: "Evan Cranmer"
+date: "2024-09-03"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(faraway)
+library(tidyverse)
+```
+
+## Homework 1 - Evan Cranmer 
+
+### Question 1 
+```{r calculating mean and variance}
+hprice$homeprice<-exp(hprice$narsp)*1000
+
+mean(hprice$homeprice)
+var(hprice$homeprice)
+```
+The mean home price is this dataset is 94,411.42. This is the average home price in USD. 
+The variance of homeprice is 1583110349. This number is representative of the spread of home prices within the dataset. Specifically, if we take the observed sample values compared to the mean, square this number, and then divide that by (n-1). 
+
+
+### Question 2 
+```{r confidence interval, echo=FALSE}
+#storing sample size
+n <- dim(hprice)[[1]]
+
+# calculate sample variance
+housevar <- var(hprice$homeprice)
+
+#coming up with t-score
+t.score<-qt(p=.05/2, df=n-1, lower.tail = F)
+t.score
+
+#creating 95% bounds
+lowCI <- mean(hprice$homeprice)-t.score*sqrt(housevar)/sqrt(n)
+upCI <- mean(hprice$homeprice)+t.score*sqrt(housevar)/sqrt(n)
+print(c(lowCI,upCI))
+
+#checking work
+t.test(hprice$homeprice, conf.level = 0.95)
+```
+Lower bound 95% CI: 90,062.7 
+Upper bound 95% CI: 98,760.1
+
+The confidence interval implies that if we were to take repeated samples from the population, the true mean of the average home price lies within 90,062 and 98.760 dollars 95% of the time.
+
+### Question 3 
+
+```{r estimating average homeprice}
+library(plotrix)
+hprice%>%
+  group_by(ajwtr)%>% #grouped by new binary variable
+  summarize(m=mean(homeprice),
+            se=std.error(homeprice))
+```
+
+### Question 4
+To compare means of home prices between coastline and non-coastline houses, I will use a two-sample T-test. 
+```{r t test}
+coast <- filter(hprice, ajwtr==1) ## Subset Coastal data to only include coastline homes
+noncoast <- filter(hprice, ajwtr!=1) ## Subset noncoast data to only include noncoastal 
+
+#two-sample t test
+t.test(coast$homeprice, noncoast$homeprice, var.equal=F)
+```
+After conducting a two sample t-test we reject the null which states that there is no difference between the sample means. We fail to reject the alternative hypothesis which states the true difference in mean home prices is not equal to 0. 
+
+### Question 5 and 6
+```{r pearsons}
+cor(hprice$homeprice, hprice$ypc)
+cor.test(hprice$homeprice, hprice$ypc)
+```
+Estimated coefficient = 0.7437474
+Since the p-value is less than .05, we can reject the null hypothesis that states the correlation coefficient we calculated is equal to 0. We fail to reject the alternative hypothesis that states the true correlation coefficient between homeprice and per capita income of the MSA is not equal to 0.
+
+### Question 7
+
+No, because the pearson's test is correlational and not causal. 
+
+### Question 8
+```{r normality, error=TRUE}
+shapiro.test(hprice$homeprice)
+
+#graphing
+qqnorm(hprice$homeprice, main="Home price", ylab="Price", xlab="m_{i:n}")+ 
+qqline(hprice$homeprice, col="red",lwd=2)
+```
+According to the Shapiro-Wilk normality test of homeprice, we can reject the null hypothesis that states homeprice is normally distributed. If we look at the Q-Q plot we can see the distribution is skewed-right. This result does not change my answer to #7 because this test is looking at the normality of distribution and not a hypothesized causal relationship that per capita income has on house price. 

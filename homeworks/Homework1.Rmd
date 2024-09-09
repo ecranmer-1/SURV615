@@ -1,7 +1,7 @@
 ---
 title: "HW1"
-author: "Evan Cranmer"
-date: "2024-09-03"
+author: "Evan Cranmer and Xiaoqing Liu"
+date: "2024-09-09"
 output:
   pdf_document: default
   html_document: default
@@ -27,7 +27,7 @@ The variance of homeprice is 1583110349. This number is representative of the sp
 
 
 ### Question 2 
-```{r confidence interval, echo=FALSE}
+```{r confidence interval}
 #storing sample size
 n <- dim(hprice)[[1]]
 
@@ -36,7 +36,6 @@ housevar <- var(hprice$homeprice)
 
 #coming up with t-score
 t.score<-qt(p=.05/2, df=n-1, lower.tail = F)
-t.score
 
 #creating 95% bounds
 lowCI <- mean(hprice$homeprice)-t.score*sqrt(housevar)/sqrt(n)

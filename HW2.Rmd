@@ -1,0 +1,44 @@
+---
+title: "HW2 Cranmer and Liu"
+author: "Evan Cranmer and Xiaoqing Liu"
+date: "2024-09-13"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Q1 Creating a regression model 
+
+```{r q1}
+library(ISLR2)
+?lm
+mod1 <- lm(mpg ~ acceleration, data = Auto)
+
+#print the model summary 
+summary(mod1)
+```
+
+## Q2 and Q3 How would you interpret the intercept and slope from 1
+
+The model predicts that when acceleration is 0, 4.8332 miles per gallon is expected Every one unit increase in acceleration corresponds to a 1.1976 increase in miles per gallon. The intercept does not make sense to me because if a car is not moving it should not have that poor of miles per gallon. 
+
+## Refitting the model 
+```{r refitting model}
+#centering around acceleration 
+library(ISLR2)
+Auto$acc_cen <- Auto$acceleration - mean(Auto$acceleration)
+
+summary(lm(mpg ~ acc_cen, Auto))
+```
+The new intercept is saying that the expected mpg for cars with a mean level of acceleration is 23.45. 
+
+## Question 4
+The null hypothesis states that acceleration has no effect on mpg. This would not change, even if we centered the model, because the only thing we are doing is shifting the intercept to make it easier to interpret. Our null stays the same. 
+
+## Question 5
+A more flexible modeling approach can make it easier to interpret the intercept. If we were showing a presentation to clients, it might be wise to make a model that is easier to interpret for them. A trade off of centering the model is that the regression line can fit differently around the data points, even if we have the same slope. 

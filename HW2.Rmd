@@ -25,7 +25,7 @@ summary(mod1)
 
 ## Q2 and Q3 How would you interpret the intercept and slope from 1
 
-The model predicts that when acceleration is 0, 4.8332 miles per gallon is expected Every one unit increase in acceleration corresponds to a 1.1976 increase in miles per gallon. The intercept does not make sense to me because if a car is not moving it should not have that poor of miles per gallon. 
+The model predicts that when acceleration is 0, 4.8332 miles per gallon is expected. Every one unit increase in acceleration corresponds to a 1.1976 increase in miles per gallon. The intercept does not make sense to me because if a car is not moving it should not have that poor of miles per gallon. 
 
 ## Refitting the model 
 ```{r refitting model}

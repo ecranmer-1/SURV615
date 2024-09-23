@@ -184,7 +184,7 @@ BostonResiduals<- Boston %>%
 This is not a good fit for the model because the linear model poorly fits the data. Firstly, the regression is poorly accounting for the majority of the suburbs with a crime rate around 0, with fewer cases as we stray further from 0. Next, the line has a poor fit because it is heteroscedastic. The residuals increase as the crime rate increases. 
 
 
-### 1G: Calculating our model by hand
+### 1G: Plotting residuals
 ```{r plotting residuals}
 #taking our residuals and plotting them 
 

@@ -20,18 +20,38 @@ data("Boston")
 #Examine medv as a function of crim, zn and indus in a multiple linear regression
 medvmodel <- lm(medv ~ crim + zn + indus, data = Boston)
 
-summary(medvmodel)
+summary_medv <- summary(medvmodel)
 ```
-### 1a looking at statistically significant predictors
-Crim, zn, and indus are all statistically significant predictors at a= 0.05. Their p-values are less than .05. 
 
+### 1a and 1b looking at statistically significant predictors
+
+To examine the significance of each predictor, we're going to compare our p-values from the medv model to the alpha value of 0.05. Then R will print out our decision based on whether our p-value is less than our alpha value. 
+```{r statistical significance}
+#storing p-values of each predictor
+p_values <- summary_medv$coefficients[, "Pr(>|t|)"]
+p_values
+
+
+alpha <- 0.05 # our alpha value
+
+#printing whether we reject our null of fail to reject our null
+rejection <- ifelse(p_values < alpha, "Reject H0", "Fail to Reject H0")
+
+#storing our results in a data frame
+significance_table <- data.frame(
+  Predictor = rownames(summary_medv$coefficients),
+  p_value = p_values,
+  Decision = rejection
+)
+
+significance_table
+```
 ### 1b null and alternative hypotheses 
+Our null hypothesis states that our p-value is not statistically significant, $H_0$: p > alpha at 0.05.
+Our alternative hypothesis states that our p-value is statistically significant, $H_0$: p < alpha 0.05.
 
-Null: The null hypothesis states that the predictors have no effect on variable medv. 
-$H_0$: $\beta_0=\beta_1=\beta_2=\beta_3 = 0$ 
+We found that all predictors are statistically significant, because their p-values are less than the alpha level of 0.05. We can reject the null hypothesis. 
 
-Alternative: The alternative hypothesis states that the predictors have a non-zero effect on variable medv. 
-$H_a$: $\beta_0\neq 0,\beta_1\neq 0,\beta_2\neq 0,\beta_3\neq 0$  
 
 ### 1c interpreting the regression coefficients
 
@@ -45,7 +65,6 @@ indus: For every one unit increase in proportion of non-retail business acres pe
 
 Interpreting all predictors as the exposure of interest could be problematic because control variables could have interactions with other variables, or just simply not have the equal effects. 
 
-
 ### 1E
 ```{r confidence intervals}
 confint(medvmodel, level = 0.95)
@@ -58,7 +77,7 @@ zn: (0.0241252, 0.09287644). If we were to take repeated samples of the populati
 
 indus: (-0.5408945, -0.29026116). If we were to take repeated samples of the population and calculate coefficient indus, the true value would be contained in the confidence interval (-0.5408945, -0.29026116) 95% of the time.
 
-Since the three variable confidence intervals do not pass through 0, all three are statistically significant and have a non-zero effect. So we would reject the null hypothesis in 1b. In 1a we found that the p-values were less than .05, meaning the variables were statistically significant, and we can reject the null hypothesis that the variables are equal to zero. This corresponded to a confidence interval that did not include zero, which we just found. 
+Since the three variable confidence intervals do not pass through 0, all three are statistically significant and have a non-zero effect. So we would reject the null hypothesis in 1b. In 1a+1b we found that the p-values were less than .05, meaning the variables were statistically significant, and we can reject the null hypothesis that the variables are equal to zero. This corresponded to a confidence interval that did not include zero, which we just found. 
 
 
 ### 1F
@@ -110,5 +129,4 @@ anova(medvmodel2, medvmodel)
 
 ```
 
-
-After performing a global f test comparing both of the models, we find that the p-value for testing $H_0: RSS_{Reduced}=RSS_{Full}$ is < .001. We can reject $H_0$ and conclude that the full model is better, because it has a significantly smaller RSS. 
+After performing a global f test comparing both of the models, we find that the p-value for testing $H_0: RSS_{Reduced}=RSS_{Full}$, is < .001. We can reject $H_0$ and conclude that the full model is better, because it has a significantly smaller RSS. 

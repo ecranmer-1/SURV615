@@ -1,8 +1,10 @@
 ---
 title: "Homework 5"
-author: "Evan Cranmer"
+author: "Evan Cranmer and Xiaoqing Liu"
 date: "2024-10-12"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -41,7 +43,6 @@ summary(multi_model)
 
 The intercept this time represents the expected median home value when both chas and indus are zero, meaning when the home is not bound by the charles river and have no non-retail business acres. Based on our output, we expect the median home value to be 29.43 thousand dollars. 
 
-
 Interpreting chas: Chas coefficient represents how the proximity to the Charles River impacts the median home value, controlling for the proportion of non-retail business acreage. Homes near the Charles River, when chas = 1, are expected to have median home values that are 7.48 thousand dollars higher than homes not near the river, holding indus constant. This effect is statistically significant, with a p-value < .001. 
 
 Interpreting indus: This coefficient represents the impact of non-retail business acres on the median home value, controlling for proximity to the Charles River. Based on our model, for each 1-unit increase in the proportion of indus, the median home value is expected to decrease by approximately 0.67 thousand dollars, holding chas constant. This effect is also statistically significant becuase the p-value is < .001. 
@@ -55,7 +56,7 @@ indus_visual <- ggplot(Boston, aes(x = indus, y = medv, color = as.factor(chas))
   labs(x = "Non-Retail Business Acres",
        y = "Median Home Value",
        color = "Charles River") +
-  ggtitle("Median Home Value, Non-Retail Business Acres \nGrouped by Charles River Proximity")
+  ggtitle("Median Home Value and Non-retail Business Acres")
 
 indus_visual
 

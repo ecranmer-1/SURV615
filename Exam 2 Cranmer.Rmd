@@ -1,0 +1,274 @@
+---
+title: "Cranmer E Exam 2"
+author: "Evan Cranmer"
+date: "2024-11-10"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(ISLR2)
+```
+
+# 1
+
+When assessing normality, using the Shapiro-Wilk test should not be completely relied on because it can suggest that small departures from normality are of concern when this departure is not significant. This type of sensitivity is more common in larger sample sizes. 
+
+# 2.1 
+
+```{r 2.1}
+
+data(Hitters)
+mod1 <- lm(Salary ~ Division + CHits, data = Hitters)
+summary(mod1)
+
+#fitting mod 2
+mod2 <- lm(Salary ~ Division * CHits, data = Hitters)
+summary(mod2)
+
+```
+
+
+```{r 2.1 continued}
+mod1_plot <- ggplot(Hitters, aes(x = CHits, y = Salary)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Salary vs Career Hits (mod1)",
+       x = "Career Hits",
+       y = "Salary") +
+  theme_minimal()
+
+
+mod1_plot
+
+interaction_plot <- ggplot(Hitters, aes(x = CHits, y = Salary)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  facet_grid(. ~ Division) +
+  labs(x = "Career Hits",
+       y = "Salary",
+       title = "Salary vs Career Hits (mod2)")
+
+interaction_plot
+
+```
+
+# 2.2
+
+Mod1 Interpretation: Each additional career hit is associated with a $379 increase in mean expected salary, keeping Division constant. 
+
+Mod2 Interpretation:
+For players in the Eastern Division, each additional career hit is associated with a $533.54 increase in mean expected salary. 
+
+For players in the Western Division, each additional career hit is associated with a $279.99 (5.3354-0.25355) increase in mean expected salary. 
+
+
+# 2.3 
+
+```{r 2.3}
+f_test <- anova(mod1, mod2)
+
+f_test
+```
+
+Based on the global F test, model 2 with the interaction term is preferable because our p-value is < 0.05 which is telling us that model 2 provides a better fit than number 1. 
+
+
+# 3 
+
+```{r 3, echo= FALSE}
+midterm_data <- read_csv("/Users/bcranmer9/Downloads/PATH_MIDTERM.csv")
+```
+
+```{r 3 model}
+
+age_diff_model <- lm(AGE_DIFF ~ AGE + MALE + BLACK + EDUC + LIFESAT, data = midterm_data)
+summary(age_diff_model)
+
+```
+
+# 3.1 Interpreting each coefficient
+
+Coefficient(AGE_DIFF): For respondents who are 0 years old, female, non-black, less than high school educated, and have a life satisfaction score of 0, the age one feels is 17.55 years older than the actual age. 
+
+AGE: For each additional year older, the difference between the age one feels and actual age decreases by 0.31, holding all other values constant.
+
+MALES: Males on average feel they are 0.89 years older than their actual age, compared with females, holding all other values constant. However, this effect is not statistically significant. 
+
+BLACK: Black respondents, on average, feel younger than their actual age by 6.29 years compared to non-black respondents, holding all other values constant.
+
+EDUC2: Respondents with a high school education, on average, feel older than their actual age by 1.39 years compared to those without a high school degree, holding all other values constant. This effect is not statistically significant, with a p-value of 0.43
+
+EDUC3: Respondents with more than a high school education, on average, feel younger than their actual age by 1.16 years compared to those without a high school degree, holding all other values constant. This effect is not statistically significant, with a p-value of 0.54. 
+
+LIFESTAT: For each additional unit increase in the life satisfaction score, respondents feel 1.01 years older than their actual age, holding all other values constant.
+
+
+# 3.2 Plotting residuals vs fitted. values
+
+```{r 3.2}
+
+plot(age_diff_model$fitted.values, age_diff_model$residuals,
+     xlab = "Fitted Values",
+     ylab = "Residuals",
+     main = "Residuals vs. Fitted Values")
+abline(h = 0, col = "blue", lwd = 2)  # Add a horizontal line at zero
+```
+
+Based on our plot, there is no clear pattern to the residuals. The residuals are more or less symmetrical around zero, so zero mean error assumption is met. 
+
+For constant error variance assumption, the residuals look heteroscedastic across the fitted values (funnel shape). There seems to be more variance on the left side of the plot (from fitted values -15 to -5). We see more extreme residuals on the negative end (ranging from -30 to -40). We see less variance on the right side of the plot. 
+
+
+# 3.3 
+
+```{r 3.3}
+mean_resid <- mean(age_diff_model$residuals)
+
+# Separate residuals based on fitted values > -5 and <= -5
+mean_great <- mean(age_diff_model$residuals[age_diff_model$fitted.values > -5])
+mean_less <- mean(age_diff_model$residuals[age_diff_model$fitted.values <= -5])
+
+# Print the results
+mean_resid
+mean_great
+mean_less
+```
+
+Our mean of residuals is extremely close to zero.
+Our mean residuals for fitted values > -5 is very close to zero also (-0.016). 
+Our mean residuals for fitted values <= -5 is also very close to zero, but this time at the positive end 0.009. Because the differences are so small and close to zero, this backs up the plot in 3.2 which shows that our zero mean error assumption holds. 
+
+# 3.4
+
+```{r 3.4}
+
+var_resid <- var(age_diff_model$residuals)
+
+# Calculate variance of residuals for each group based on fitted values
+fitted_greater <- age_diff_model$residuals[age_diff_model$fitted.values > -5]
+fitted_less <- age_diff_model$residuals[age_diff_model$fitted.values <= -5]
+
+#comparing variances
+var.test(fitted_greater, fitted_less)
+
+# Print variances and F-test result
+var_resid
+
+var(fitted_greater)
+var(fitted_less)
+```
+
+Based on our variance test, a comparison fitted values great than -5 and fitted values less than or equal to -5 shows that the error variance assumption does not hold with a p-value < 0.05. This suggests that the two variances are statistically different. We see this heteroscedasticity in plot 3.2 with the funnel shape that I mentioned earlier. 
+
+# 3.5 
+
+The top 3 most influential points in the model are 25, 332, and 31. Looking at the points which have high leverage and large residuals (which influence Cook's Distance), none of the points meet the threshhold for high leverage points. However, all are large residual points. When looking at the points themselves, this makes sense. For point 25, age_diff is 59, for point 332 age_diff is 49, and for point 31 age_diff is 44. These are clearly cases where the perceived age is extremely different than actual age, thus influencing the model. 
+
+
+```{r 3.5, echo=FALSE}
+cooks_d <- cooks.distance(age_diff_model)
+
+influential_threshold <- 4 / nrow(midterm_data)
+
+#getting our influential points
+influential_points <- which(cooks_d > influential_threshold)
+
+#Looking at all influential points
+influential_points
+
+```
+
+```{r top 3}
+top3 <- order(cooks_d, decreasing = TRUE)[1:3]
+
+top3
+```
+
+
+```{r}
+#checking for leverage and large residuals 
+
+leverage <- hatvalues(age_diff_model)
+leverage_threshold <- 2 * (length(coefficients(age_diff_model)) / nrow(midterm_data))
+
+#identifying high leverage points
+high_leverage <- which(leverage > leverage_threshold)
+
+high_leverage
+
+#looking at standardized residuals
+standardized_r <- rstandard(age_diff_model)
+
+#checking for large residuals 
+large_residuals <- which(abs(standardized_r) > 2)
+large_residuals
+
+```
+
+
+
+# 3.6 Updating the model, Goodness of Fit 
+
+In our updated model, the adjusted r-squared is 0.1916, meaning that 19.16% of the variance in the dependent variables is explained by the independent variable, and this value was adjusted for the number of parameters in our model. 
+
+In our original model, the adjusted r-squared is 0.172, meaning that 17.2% of the variance in the dependent variables is explained by the independent variable, and this value was adjusted for the number of parameters in our model. 
+
+In a comparison of MSE, our updated model has a lesser value compared to the MSE of the original model, (193.68 < 216.42). This suggests that the updated model is a better fit for the actual values on average compared to the original model. 
+
+
+```{r 3.6}
+
+data_updated <- midterm_data[-top3, ]
+
+age_model2 <- lm(AGE_DIFF ~ AGE + MALE + BLACK + EDUC + LIFESAT, data = data_updated)
+summary(age_model2)
+
+#for comparison 
+og_sum <- summary(age_diff_model)
+
+#calculating MSE
+MSE_og <- mean(og_sum$residuals^2)
+MSE_og
+
+MSE_updated <- mean(residuals(age_model2)^2)
+MSE_updated
+```
+
+
+# 3.7 Creating a confidence interval 
+
+The confidence interval for the mean value of age_diff for a 45-year-old Black female with high school education and mean life satisfaction score is (-9.55, -1.40). We are 95% confident that the true average AGE_DIFF for all 45-year-old Black females with high school education and mean life satisfaction falls within this interval. 
+
+
+```{r 3.7}
+#
+mean_lifesat <- mean(midterm_data$LIFESAT, na.rm = TRUE)
+
+bf_data <-  data.frame(
+  AGE = 45,
+  MALE = 0,
+  BLACK = 1,
+  EDUC = "2.HS",   # Ensure this matches the encoding in your data
+  LIFESAT = mean_lifesat
+)
+
+
+ci_95 <- predict(age_diff_model, newdata = bf_data, interval = "confidence", level = 0.95)
+
+ci_95
+```
+
+
+# 3.8 Creating a prediction interval 
+
+This time, we are predicting a value for an individual and not the population. This means that we are 95% confident that the next observation with these predictor values will fall in the interval (-34.93, 23.98). This is notably larger than the confidence interval in 3.7 because we have to account for the variability of x in addition to the variability of our estimate of its mean. 
+
+```{r 3.8}
+prediction <- predict(age_diff_model, newdata = bf_data, interval = "prediction", level = 0.95)
+prediction
+```
